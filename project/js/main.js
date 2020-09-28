@@ -1,29 +1,78 @@
-const products = [
-    {id: 1, title: 'Notebook', price: 20000},
-    {id: 2, title: 'Mouse', price: 1500},
-    {id: 3, title: 'Keyboard', price: 5000},
-    {id: 4, title: 'Gamepad', price: 4500},
-];
+const API = 'https://raw.githubusercontent.com/GeekBrainsTutorial/online-store-api/master/responses';
 
-const renderProduct = ({title}, {price}, img = 'img/exampleImg.jpg' ) => {
-    return `<div class="product-item">
-                <h3>${title}</h3>
-                <img src="${img}" alt="">
-                <p>${price}</p>
-                <button class="by-btn">Добавить в корзину</button>
-              </div>`;
-};
+const app = new Vue({
+    el: '#app',
+    data: {
+        searchLine: '',
+        catalogUrl: '/catalogData.json',
+        products: [],
+        imgCatalog: 'https://placehold.it/200x150',
+        toggle: false,
+        cart: [],
+        productId: 0,
+        // isVisibleCart: 'invisible'
+    },
+    methods: {
+        getJson(url) {
+            return fetch(url)
+                .then(result => result.json())
+                .catch(error => {
+                    console.log(error);
+                })
+        },
+        addProduct(product) {
+            let checkId = this.cart.find(productId => productId.id_product === product.id_product)
+            if (checkId != undefined) {
+                product.quantity++;
+            } else {
+                this.$set(product, 'quantity', 1)
+                this.cart.push(product)
+            }
+        },
+        deleteProduct(product) {
+            let checkId = this.cart.find(productId => productId.id_product === product.id_product)
+            if (checkId != undefined) {
+                product.quantity--;
+            } else {
+                this.$set(product, 'quantity', 1)
+                this.cart.push(product)
+            }
+        },
 
-const renderProducts = (list) => {
-    const productList = list.map((product) => {
-        return renderProduct(product, product);
-    }).join(' ');
-    console.log(productList);
-    document.querySelector('.products').innerHTML = productList;
-};
-
-renderProducts(products);
-// TASK 3. When map convert array to string automatically join with comma,
-// here I used join() with space separator
-
-// TASK 2. sorry, I think I didn't understand second Task ;*(
+    },
+    computed: {
+        FilterGoods() {
+            return this.products.filter(product => {
+                return product.product_name.toLowerCase().includes(this.searchLine.toLowerCase())
+            })
+        }
+    },
+    beforeCreate() {
+    },
+    created() {
+        this.getJson(`${API + this.catalogUrl}`)
+            .then(data => {
+                for (let el of data) {
+                    this.products.push(el);
+                }
+            });
+    },
+    beforeMount() {
+    },
+    mounted(){
+    //   this.getJson(`${API + this.catalogUrl}`)
+    //     .then(data => {
+    //       for(let el of data){
+    //         this.products.push(el);
+    //       }
+    //     });
+    },
+    beforeUpdate() {
+    },
+    updated() {
+    },
+    beforeDestroy() {
+    },
+    destroyed() {
+    },
+});
